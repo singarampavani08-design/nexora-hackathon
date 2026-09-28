@@ -34,7 +34,9 @@ function BriefPage() {
   const s = useAppState();
   const [hydrated, setHydrated] = useState(false);
   const [showSources, setShowSources] = useState(false);
-  useEffect(() => setHydrated(true), []);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
   const brief = s.briefs.find((b) => b.id === briefId);
 
   let body: ReactNode;

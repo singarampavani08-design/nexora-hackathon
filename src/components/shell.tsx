@@ -96,7 +96,9 @@ export function AssistantPanel() {
     if (pendingQuestion) { ask(pendingQuestion); clearPending(); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingQuestion]);
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth" }), [msgs, thinking]);
+  useEffect(() => {
+    end.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs, thinking]);
 
   return (
     <>
