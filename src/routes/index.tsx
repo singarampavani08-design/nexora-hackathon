@@ -25,8 +25,12 @@ const pipeline = [
   { icon: FileText, label: "Personalized Brief", desc: "Ready in seconds" },
 ];
 
+import { useAuth } from "@/lib/auth-context";
+
 function Landing() {
   const { startDemo } = useApp();
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="mx-auto max-w-7xl px-4 md:px-6">
       {/* Hero */}
@@ -41,8 +45,17 @@ function Landing() {
           Nexora remembers every conversation — concerns, decisions, promises — and prepares you for the next meeting with the same person.
         </p>
         <div className="mt-8 flex animate-fade-up flex-wrap justify-center gap-3" style={{ animationDelay: "240ms" }}>
-          <button onClick={startDemo} className={btnPrimary}><Play className="h-4 w-4" /> Launch 60s Demo</button>
-          <Link to="/prepare" className={btnGhost}>Prepare a meeting <ArrowRight className="h-4 w-4" /></Link>
+          {isAuthenticated ? (
+            <Link to="/dashboard" className={btnPrimary}>
+              Enter Dashboard <ArrowRight className="h-4 w-4" />
+            </Link>
+          ) : (
+            <Link to="/login" search={{ tab: "signup" }} className={btnPrimary}>
+              Get Started Free <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
+          <button onClick={startDemo} className={btnGhost}><Play className="h-4 w-4" /> Launch 60s Demo</button>
+          <Link to="/workspace" className={btnGhost}>Live Workspaces</Link>
         </div>
 
         {/* Pipeline */}

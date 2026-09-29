@@ -11,6 +11,8 @@
  * API calls (one memory bank per user) without touching any UI code.
  */
 import { getState, setState } from "./store";
+import { createMeeting, createMemory } from "./supabase/service";
+import { rowToMeeting, rowToMemory } from "./supabase/mappers";
 import type { Brief, Memory, MemoryType, RecalledMemory } from "./types";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -42,14 +44,13 @@ export interface RetainInput {
 }
 
 export async function retainMeetingMemory(input: RetainInput): Promise<Memory[]> {
-  const meetingId = `m-${uid()}`;
   const sentences = input.notes.split(/(?<=[.!?])\s+|\n+/).map((s) => s.trim()).filter((s) => s.length > 8);
-  const memories: Memory[] = sentences.map((text) => {
+  const drafts: Memory[] = sentences.map((text) => {
     const type = classify(text);
     return {
       id: `mem-${uid()}`,
       contactId: input.contactId,
-      meetingId,
+      meetingId: "",
       type,
       text,
       date: input.date,
@@ -57,12 +58,58 @@ export async function retainMeetingMemory(input: RetainInput): Promise<Memory[]>
       status: type === "commitment" || type === "followup" ? "open" : undefined,
     };
   });
+
+  // Persist to Supabase first (meeting row, then its memories), so ids and
+  // dates match what the rest of the app reads back from the database.
+  const meetingRes = await createMeeting({
+    contact_id: input.contactId,
+    title: input.title,
+    purpose: input.title,
+    meeting_date: input.date.slice(0, 10),
+    meeting_time: input.date.length > 10 ? input.date.slice(11, 19) : null,
+    status: "completed",
+    summary: sentences.slice(0, 2).join(" ") || null,
+  });
+
+  if (meetingRes.ok) {
+    const dbMeeting = rowToMeeting(meetingRes.data);
+    const inserted = await Promise.all(
+      drafts.map((m) =>
+        createMemory({
+          meeting_id: meetingRes.data.id,
+          contact_id: input.contactId,
+          type: m.type,
+          content: m.text,
+          topics: m.topics,
+          is_open: m.status === "open",
+          confidence: 0.95,
+        }),
+      ),
+    );
+    const dbMemories = inserted
+      .filter((r) => r.ok)
+      .map((r) => (r.ok ? rowToMemory({ ...r.data, meetings: null }) : null))
+      .filter((m): m is Memory => m !== null);
+    if (dbMemories.length) {
+      setState((s) => ({
+        ...s,
+        meetings: [...s.meetings, dbMeeting],
+        memories: [...s.memories, ...dbMemories],
+      }));
+      return dbMemories;
+    }
+  }
+
+  // Fallback: database unreachable — keep the demo running on local state only.
+  console.error("[nexora:db] Retain could not reach the database; storing this meeting locally only.");
+  const localMeetingId = `m-${uid()}`;
+  const localMemories = drafts.map((m) => ({ ...m, meetingId: localMeetingId }));
   setState((s) => ({
     ...s,
-    meetings: [...s.meetings, { id: meetingId, contactId: input.contactId, title: input.title, date: input.date, purpose: input.title, status: "completed", summary: sentences.slice(0, 2).join(" ") }],
-    memories: [...s.memories, ...memories],
+    meetings: [...s.meetings, { id: localMeetingId, contactId: input.contactId, title: input.title, date: input.date, purpose: input.title, status: "completed", summary: sentences.slice(0, 2).join(" ") }],
+    memories: [...s.memories, ...localMemories],
   }));
-  return memories;
+  return localMemories;
 }
 
 export function recallMeetingMemory(opts: { contactId?: string | undefined; query?: string; limit?: number; types?: MemoryType[] | undefined }): RecalledMemory[] {

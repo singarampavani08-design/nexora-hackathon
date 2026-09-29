@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scripts } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -78,19 +79,24 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+import { AuthProvider } from "@/lib/auth-context";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <AppProvider>
-        <Header />
-        <main className="min-h-[70vh]">
-          <Outlet />
-        </main>
-        <Footer />
-        <AssistantPanel />
-        <DemoOverlay />
-      </AppProvider>
+      <AuthProvider>
+        <AppProvider>
+          <Header />
+          <main className="min-h-[70vh]">
+            <Outlet />
+          </main>
+          <Footer />
+          <AssistantPanel />
+          <DemoOverlay />
+          <Toaster position="bottom-right" richColors />
+        </AppProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

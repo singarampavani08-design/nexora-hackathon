@@ -17,6 +17,10 @@ export interface Meeting {
   purpose: string;
   status: "completed" | "upcoming";
   summary?: string;
+  zoomMeetingId?: string | null;
+  zoomJoinUrl?: string | null;
+  zoom_meeting_id?: string | null;
+  zoom_join_url?: string | null;
 }
 
 export interface Memory {
@@ -28,6 +32,7 @@ export interface Memory {
   date: string;
   topics: string[];
   status?: "open" | "done" | undefined;
+  confidence?: number; // 0–1, from Supabase (shown where relevance is shown for recalled items)
 }
 
 export interface RecalledMemory extends Memory {

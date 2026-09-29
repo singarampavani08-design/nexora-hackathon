@@ -1,15 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowRight, Mail } from "lucide-react";
 import { useAppState } from "@/lib/store";
-import { seedContacts } from "@/lib/seed";
+import { getContactById } from "@/lib/supabase/service";
 import { Avatar, Card, TypeBadge, btnPrimary } from "@/components/nx";
 import { fmtDate } from "@/lib/types";
 
 export const Route = createFileRoute("/contacts/$contactId")({
-  loader: ({ params }) => {
-    const c = seedContacts.find((x) => x.id === params.contactId);
-    if (!c) throw notFound();
-    return { name: c.name, company: c.company };
+  loader: async ({ params }) => {
+    const res = await getContactById(params.contactId);
+    if (!res.ok || !res.data) throw notFound();
+    return { name: res.data.name, company: res.data.company ?? "" };
   },
   head: ({ loaderData }) => ({
     meta: loaderData

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { retainMeetingMemory } from "@/lib/hindsight";
+import { hydrateFromSupabase } from "@/lib/store";
 
 interface Ctx {
   assistantOpen: boolean;
@@ -35,6 +36,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const askAssistant = useCallback((q: string) => {
     setPending(q);
     setAssistantOpen(true);
+  }, []);
+
+  // Load contacts/meetings/memories from Supabase once on mount.
+  useEffect(() => {
+    void hydrateFromSupabase();
   }, []);
 
   useEffect(() => {

@@ -8,6 +8,7 @@ import { btnPrimary, inputCls } from "./nx";
 const links = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/prepare", label: "Prepare" },
+  { to: "/workspace", label: "Workspace" },
   { to: "/memory", label: "Memory" },
   { to: "/contacts", label: "Contacts" },
   { to: "/history", label: "History" },
@@ -24,8 +25,13 @@ export function Logo() {
   );
 }
 
+import { useAuth } from "@/lib/auth-context";
+import { LogIn, LogOut, User as UserIcon } from "lucide-react";
+
 export function Header() {
   const { setAssistantOpen, startDemo, demoStep } = useApp();
+  const { user, isAuthenticated, signOut } = useAuth();
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 md:px-6">
@@ -44,6 +50,32 @@ export function Header() {
           <button onClick={startDemo} disabled={demoStep >= 0} className={btnPrimary + " !px-4 !py-2"}>
             <Play className="h-4 w-4" /> Launch Demo
           </button>
+
+          {/* User Auth Action */}
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-2 pl-1 border-l border-border">
+              <div className="hidden sm:flex items-center gap-2 rounded-xl bg-secondary/40 px-2.5 py-1 text-xs">
+                <span className="grid h-6 w-6 place-items-center rounded-lg bg-primary/20 text-[11px] font-bold text-primary">
+                  {user.name.charAt(0).toUpperCase()}
+                </span>
+                <span className="max-w-[100px] truncate font-medium">{user.name.split(" ")[0]}</span>
+              </div>
+              <button
+                onClick={() => signOut()}
+                title="Sign out"
+                className="rounded-xl border border-border p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20"
+            >
+              <LogIn className="h-4 w-4" /> Sign In
+            </Link>
+          )}
         </div>
       </div>
       <nav className="flex gap-1 overflow-x-auto px-4 pb-2 md:hidden">

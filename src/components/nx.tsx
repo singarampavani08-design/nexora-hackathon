@@ -1,6 +1,30 @@
 import type { ReactNode, CSSProperties } from "react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TYPE_META, type Contact, type MemoryType } from "@/lib/types";
+
+/** Friendly loading / error banner shared by all data-backed pages. */
+export function StatusBanner({ loading, error }: { loading?: boolean; error?: string | null }) {
+  if (error) {
+    return (
+      <div className="mb-6 flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <AlertTriangle className="h-4 w-4 shrink-0" /> {error}
+      </div>
+    );
+  }
+  if (loading) {
+    return (
+      <div className="mb-6 flex items-center gap-3 rounded-xl border border-border bg-secondary/60 px-4 py-3 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> Loading your data…
+      </div>
+    );
+  }
+  return null;
+}
+
+export function SkeletonCard({ className = "" }: { className?: string }) {
+  return <div className={`animate-shimmer rounded-2xl ${className}`} />;
+}
 
 export function Avatar({ contact, size = 40 }: { contact: Contact; size?: number }) {
   const initials = contact.name.split(" ").map((p) => p[0]).join("");

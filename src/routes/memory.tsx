@@ -4,7 +4,7 @@ import { z } from "zod";
 import { BrainCircuit, Database, FileText, Search, Upload, RotateCcw } from "lucide-react";
 import { useAppState, resetState } from "@/lib/store";
 import { recallMeetingMemory } from "@/lib/hindsight";
-import { Card, PageHeader, Relevance, TypeBadge, inputCls } from "@/components/nx";
+import { Card, PageHeader, Relevance, SkeletonCard, StatusBanner, TypeBadge, inputCls } from "@/components/nx";
 import { TYPE_META, fmtDate, type MemoryType } from "@/lib/types";
 
 export const Route = createFileRoute("/memory")({
@@ -37,9 +37,14 @@ function MemoryCenter() {
   const topTopics = [...topics.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14);
   const maxT = topTopics[0]?.[1] ?? 1;
 
-  const months = ["2026-07", "2026-08", "2026-09", "2026-10"];
+  const months: string[] = [];
+  const today = new Date();
+  for (let i = 3; i >= 0; i--) {
+    const d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - i, 1));
+    months.push(d.toISOString().slice(0, 7));
+  }
   let cum = 0;
-  const growth = months.map((mo) => { cum += s.memories.filter((m) => m.date.startsWith(mo)).length; return { mo, cum }; });
+  const growth = months.map((mo) => { cum += s.memories.filter((m) => m.date.slice(0, 7) === mo).length; return { mo, cum }; });
   const maxG = Math.max(1, ...growth.map((g) => g.cum));
   const cName = (id: string) => s.contacts.find((c) => c.id === id)?.name ?? "";
 
@@ -48,6 +53,13 @@ function MemoryCenter() {
       <PageHeader eyebrow="Memory Center" title="Hindsight memory, visualized" desc="Everything Nexora has learned across your meetings — and how it flows into every brief."
         action={<button onClick={() => { if (confirm("Reset memory to demo data?")) resetState(); }} className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm text-muted-foreground hover:text-foreground"><RotateCcw className="h-4 w-4" /> Reset demo data</button>} />
 
+      <StatusBanner loading={s.loading && s.memories.length === 0} error={s.error} />
+      {s.loading && s.memories.length === 0 ? (
+        <div className="grid gap-6 lg:grid-cols-3">
+          {[0, 1, 2, 3, 4, 5].map((i) => <SkeletonCard key={i} className="h-44" />)}
+        </div>
+      ) : (
+      <>
       <Card className="mb-6">
         <div className="relative grid grid-cols-5 gap-2">
           <div className="absolute left-[10%] right-[10%] top-6 h-px bg-border">
@@ -124,7 +136,10 @@ function MemoryCenter() {
             <div className="mt-2 flex flex-wrap gap-1">{m.topics.map((t) => <span key={t} className="rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">{t}</span>)}</div>
           </Card>
         ))}
+        {!list.length && <p className="text-center text-muted-foreground md:col-span-2 lg:col-span-3">{s.memories.length ? "No memories match your filters." : "No memories stored yet."}</p>}
       </div>
+      </>
+      )}
     </div>
   );
 }

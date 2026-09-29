@@ -12,11 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as HistoryRouteImport } from './routes/history'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MemoryRouteImport } from './routes/memory'
 import { Route as PrepareRouteImport } from './routes/prepare'
 import { Route as BriefBriefIdRouteImport } from './routes/brief.$briefId'
 import { Route as ContactsIndexRouteImport } from './routes/contacts.index'
 import { Route as ContactsContactIdRouteImport } from './routes/contacts.$contactId'
+import { Route as WorkspaceIndexRouteImport } from './routes/workspace.index'
+import { Route as WorkspaceMeetingIdRouteImport } from './routes/workspace.$meetingId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,6 +34,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MemoryRoute = MemoryRouteImport.update({
@@ -58,37 +66,56 @@ const ContactsContactIdRoute = ContactsContactIdRouteImport.update({
   path: '/contacts/$contactId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkspaceIndexRoute = WorkspaceIndexRouteImport.update({
+  id: '/workspace/',
+  path: '/workspace/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkspaceMeetingIdRoute = WorkspaceMeetingIdRouteImport.update({
+  id: '/workspace/$meetingId',
+  path: '/workspace/$meetingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
+  '/login': typeof LoginRoute
   '/memory': typeof MemoryRoute
   '/prepare': typeof PrepareRoute
   '/brief/$briefId': typeof BriefBriefIdRoute
   '/contacts/$contactId': typeof ContactsContactIdRoute
+  '/workspace/$meetingId': typeof WorkspaceMeetingIdRoute
   '/contacts/': typeof ContactsIndexRoute
+  '/workspace/': typeof WorkspaceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
+  '/login': typeof LoginRoute
   '/memory': typeof MemoryRoute
   '/prepare': typeof PrepareRoute
   '/brief/$briefId': typeof BriefBriefIdRoute
   '/contacts/$contactId': typeof ContactsContactIdRoute
+  '/workspace/$meetingId': typeof WorkspaceMeetingIdRoute
   '/contacts': typeof ContactsIndexRoute
+  '/workspace': typeof WorkspaceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
+  '/login': typeof LoginRoute
   '/memory': typeof MemoryRoute
   '/prepare': typeof PrepareRoute
   '/brief/$briefId': typeof BriefBriefIdRoute
   '/contacts/$contactId': typeof ContactsContactIdRoute
+  '/workspace/$meetingId': typeof WorkspaceMeetingIdRoute
   '/contacts/': typeof ContactsIndexRoute
+  '/workspace/': typeof WorkspaceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -96,42 +123,54 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/history'
+    | '/login'
     | '/memory'
     | '/prepare'
     | '/brief/$briefId'
     | '/contacts/$contactId'
+    | '/workspace/$meetingId'
     | '/contacts/'
+    | '/workspace/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
     | '/history'
+    | '/login'
     | '/memory'
     | '/prepare'
     | '/brief/$briefId'
     | '/contacts/$contactId'
+    | '/workspace/$meetingId'
     | '/contacts'
+    | '/workspace'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/history'
+    | '/login'
     | '/memory'
     | '/prepare'
     | '/brief/$briefId'
     | '/contacts/$contactId'
+    | '/workspace/$meetingId'
     | '/contacts/'
+    | '/workspace/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   HistoryRoute: typeof HistoryRoute
+  LoginRoute: typeof LoginRoute
   MemoryRoute: typeof MemoryRoute
   PrepareRoute: typeof PrepareRoute
   BriefBriefIdRoute: typeof BriefBriefIdRoute
   ContactsContactIdRoute: typeof ContactsContactIdRoute
+  WorkspaceMeetingIdRoute: typeof WorkspaceMeetingIdRoute
   ContactsIndexRoute: typeof ContactsIndexRoute
+  WorkspaceIndexRoute: typeof WorkspaceIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -155,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/memory': {
@@ -192,6 +238,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactsContactIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workspace/': {
+      id: '/workspace/'
+      path: '/workspace'
+      fullPath: '/workspace/'
+      preLoaderRoute: typeof WorkspaceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workspace/$meetingId': {
+      id: '/workspace/$meetingId'
+      path: '/workspace/$meetingId'
+      fullPath: '/workspace/$meetingId'
+      preLoaderRoute: typeof WorkspaceMeetingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -199,11 +259,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   HistoryRoute: HistoryRoute,
+  LoginRoute: LoginRoute,
   MemoryRoute: MemoryRoute,
   PrepareRoute: PrepareRoute,
   BriefBriefIdRoute: BriefBriefIdRoute,
   ContactsContactIdRoute: ContactsContactIdRoute,
+  WorkspaceMeetingIdRoute: WorkspaceMeetingIdRoute,
   ContactsIndexRoute: ContactsIndexRoute,
+  WorkspaceIndexRoute: WorkspaceIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

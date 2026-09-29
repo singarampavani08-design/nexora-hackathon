@@ -44,9 +44,16 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+import { handleZoomWebhookRequest } from "./lib/rtms/webhook";
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+      if (url.pathname === "/api/zoom/rtms" || url.pathname === "/api/webhooks/zoom") {
+        return await handleZoomWebhookRequest(request);
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

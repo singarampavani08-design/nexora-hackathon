@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BrainCircuit, CalendarDays, ListChecks, Users } from "lucide-react";
 import { useAppState } from "@/lib/store";
-import { Avatar, Card, TypeBadge, btnPrimary } from "@/components/nx";
+import { Avatar, Card, SkeletonCard, StatusBanner, TypeBadge, btnPrimary } from "@/components/nx";
 import { fmtDate } from "@/lib/types";
 
 export const Route = createFileRoute("/dashboard")({
@@ -31,6 +31,17 @@ function Dashboard() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 md:px-6">
+      <StatusBanner loading={s.loading && s.contacts.length === 0} error={s.error} />
+      {s.loading && s.contacts.length === 0 ? (
+        <div className="space-y-6">
+          <SkeletonCard className="h-36" />
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {[0, 1, 2, 3].map((i) => <SkeletonCard key={i} className="h-32" />)}
+          </div>
+          <SkeletonCard className="h-64" />
+        </div>
+      ) : (
+      <>
       <Card className="relative mb-8 overflow-hidden p-8 animate-fade-up">
         <div className="absolute inset-0 bg-brand opacity-15" />
         <div className="relative flex flex-wrap items-center justify-between gap-4">
@@ -68,6 +79,7 @@ function Dashboard() {
                     <p className="text-sm text-muted-foreground">{c.name} · {c.company} · {fmtDate(m.date)}</p>
                   </div>
                   <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary">{mem} memories</span>
+                  <Link to="/workspace/$meetingId" params={{ meetingId: m.id }} className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-sm text-primary hover:bg-primary/20">Workspace</Link>
                   <Link to="/prepare" search={{ contact: c.id, title: m.title, purpose: m.purpose, date: m.date.slice(0, 10) }} className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-secondary">Prepare</Link>
                 </div>
               );
@@ -86,9 +98,12 @@ function Dashboard() {
                 <p className="mt-2 text-sm">{m.text}</p>
               </div>
             ))}
+            {!recent.length && <p className="text-sm text-muted-foreground">No memories stored yet.</p>}
           </div>
         </Card>
       </div>
+      </>
+      )}
     </div>
   );
 }
