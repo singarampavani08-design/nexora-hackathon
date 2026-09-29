@@ -27,7 +27,18 @@ export const Route = createFileRoute("/contacts/$contactId")({
 function ContactDetail() {
   const { contactId } = Route.useParams();
   const s = useAppState();
-  const c = s.contacts.find((x) => x.id === contactId)!;
+  const c = s.contacts.find((x) => x.id === contactId);
+
+  if (!c) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+        <h1 className="text-2xl font-semibold">Contact not found</h1>
+        <p className="mt-2 text-sm text-muted-foreground">The requested contact doesn't exist or was removed.</p>
+        <Link to="/contacts" className={btnPrimary + " mt-6 inline-flex"}>View all contacts</Link>
+      </div>
+    );
+  }
+
   const meetings = s.meetings.filter((m) => m.contactId === c.id).sort((a, b) => b.date.localeCompare(a.date));
   const open = s.memories.filter((m) => m.contactId === c.id && m.status === "open");
 

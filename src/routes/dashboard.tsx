@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BrainCircuit, CalendarDays, ListChecks, Users } from "lucide-react";
 import { useAppState } from "@/lib/store";
 import { Avatar, Card, SkeletonCard, StatusBanner, TypeBadge, btnPrimary } from "@/components/nx";
-import { fmtDate } from "@/lib/types";
+import { fmtDate, type Contact } from "@/lib/types";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -21,7 +21,15 @@ function Dashboard() {
   const upcoming = s.meetings.filter((m) => m.status === "upcoming").sort((a, b) => a.date.localeCompare(b.date));
   const open = s.memories.filter((m) => m.status === "open");
   const recent = [...s.memories].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
-  const contact = (id: string) => s.contacts.find((c) => c.id === id)!;
+  const fallbackContact = (id: string): Contact => ({
+    id,
+    name: "External Contact",
+    role: "Participant",
+    company: "Organization",
+    email: "",
+    hue: 200,
+  });
+  const contact = (id: string) => s.contacts.find((c) => c.id === id) || fallbackContact(id);
   const stats = [
     { icon: Users, label: "Contacts", v: s.contacts.length },
     { icon: CalendarDays, label: "Meetings remembered", v: s.meetings.filter((m) => m.status === "completed").length },

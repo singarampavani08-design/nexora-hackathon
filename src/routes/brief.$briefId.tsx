@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { AlertTriangle, BrainCircuit, CheckSquare, Clock, HelpCircle, MessagesSquare, Target, Info } from "lucide-react";
 import { useAppState } from "@/lib/store";
 import { Avatar, Card, Relevance, TypeBadge, btnGhost, btnPrimary } from "@/components/nx";
-import { fmtDate } from "@/lib/types";
+import { fmtDate, type Contact } from "@/lib/types";
 
 export const Route = createFileRoute("/brief/$briefId")({
   head: () => ({
@@ -45,7 +45,14 @@ function BriefPage() {
     <Card className="text-center"><p className="font-semibold">Brief not found</p><Link to="/prepare" className={btnPrimary + " mt-4"}>Prepare a meeting</Link></Card>
   );
   else {
-    const c = s.contacts.find((x) => x.id === brief.contactId)!;
+    const c: Contact = s.contacts.find((x) => x.id === brief.contactId) || {
+      id: brief.contactId,
+      name: "External Contact",
+      role: "Participant",
+      company: "Organization",
+      email: "",
+      hue: 200,
+    };
     body = (
       <>
         <Card className="relative mb-6 overflow-hidden p-7 animate-fade-up">

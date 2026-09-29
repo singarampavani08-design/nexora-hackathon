@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAppState } from "@/lib/store";
 import { Avatar, Card, PageHeader, SkeletonCard, StatusBanner, inputCls } from "@/components/nx";
-import { fmtDate } from "@/lib/types";
+import { fmtDate, type Contact } from "@/lib/types";
 
 export const Route = createFileRoute("/history")({
   head: () => ({
@@ -48,7 +48,14 @@ function HistoryPage() {
       ) : (
       <div className="space-y-3">
         {list.map((m, i) => {
-          const c = s.contacts.find((x) => x.id === m.contactId)!;
+          const c: Contact = s.contacts.find((x) => x.id === m.contactId) || {
+            id: m.contactId,
+            name: "External Contact",
+            role: "Participant",
+            company: "Organization",
+            email: "",
+            hue: 200,
+          };
           const mem = s.memories.filter((x) => x.meetingId === m.id).length;
           return (
             <Card key={m.id} className="lift flex flex-wrap items-center gap-4 animate-fade-up" style={{ animationDelay: `${Math.min(i, 10) * 40}ms` }}>
